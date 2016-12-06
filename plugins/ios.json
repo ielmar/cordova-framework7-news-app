@@ -1,0 +1,30 @@
+{
+    "prepare_queue": {
+        "installed": [],
+        "uninstalled": []
+    },
+    "config_munge": {
+        "files": {}
+    },
+    "installed_plugins": {
+        "cordova-plugin-crosswalk-webview": {
+            "PACKAGE_NAME": "com.elitsolutions.qafqazinfo"
+        },
+        "cordova-plugin-google-analytics": {
+            "PACKAGE_NAME": "com.elitsolutions.qafqazinfo"
+        },
+        "cordova-plugin-network-information": {
+            "PACKAGE_NAME": "com.elitsolutions.qafqazinfo"
+        },
+        "cordova-plugin-splashscreen": {
+            "PACKAGE_NAME": "com.elitsolutions.qafqazinfo"
+        },
+        "cordova-plugin-whitelist": {
+            "PACKAGE_NAME": "com.elitsolutions.qafqazinfo"
+        },
+        "cordova-plugin-x-socialsharing": {
+            "PACKAGE_NAME": "$(PRODUCT_BUNDLE_IDENTIFIER)"
+        }
+    },
+    "dependent_plugins": {}
+}

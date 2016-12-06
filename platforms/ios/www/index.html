@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html>
+  <head>
+   		<script>
+			window.onerror = function (msg, url, line) {
+				console.log("Caught[via window.onerror]: '" + msg + "' from " + url + ":" + line);
+				return true; // same as preventDefault
+			};
+
+			window.addEventListener('error', function (evt) {
+				console.log("Caught[via 'error' event]:  '" + evt.message + "' from " + evt.filename + ":" + evt.lineno);
+				console.log(evt); // has srcElement / target / etc
+				evt.preventDefault();
+			});
+		</script>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, minimal-ui">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <title>Qafqazinfo.az</title>
+
+     <link rel="stylesheet" href="css/framework7.ios.min.css"> 
+<!--    <link rel="stylesheet" href="css/framework7.material.min.css">-->
+    <link rel="stylesheet" href="css/my-app.css">
+
+  </head>
+  <body>
+    <div class="statusbar-overlay"></div>
+    <div class="panel-overlay"></div>
+    <div class="panel panel-left panel-cover">
+
+        <div class="view navbar-fixed">
+            <div class="pages">
+                <div data-page="panel-left" class="page">
+                    <div class="navbar">
+                        <div class="navbar-inner">
+                            <div class="center">Qafqazinfo.az</div>
+                        </div>
+                    </div>
+                    <div class="page-content menu">
+                        <div class="content-block-title">
+                            <time>15:34</time>
+                            <p>C.a., 22 Sentyabr 2016</p>
+                        </div>
+                        <div class="list-block categories">
+                            <ul>
+                            </ul>
+                        </div>
+                        <div class="list-block">
+                            <ul>
+                                <!-- <li>
+                                    <a href="#settings" class="item-link close-panel">
+                                        <div class="item-content">
+                                            <div class="item-inner">
+                                                <div class="item-title">Tənzimləmələr</div>
+                                            </div>
+                                        </div>
+                                    </a>
+                                </li> -->
+                                <li>
+                                    <a href="#about" class="item-link close-panel">
+                                        <div class="item-content">
+                                            <div class="item-inner">
+                                                <div class="item-title">Haqqında</div>
+                                            </div>
+                                        </div>
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+<!--
+    <div class="panel panel-right panel-cover">
+      <div class="content-block">
+        <p>Right panel content goes here</p>
+      </div>
+    </div>
+-->
+    <div class="views">
+      <div class="view view-main">
+        <div class="navbar">
+
+          <div data-page="index" class="navbar-inner">
+            <div class="center sliding">Qafqazinfo.az</div>
+            <div class="right">
+              <a href="#search" class="link icon-only"> <i class="icon icon-search"></i></a>
+              <a href="#" class="link icon-only open-panel"> <i class="icon icon-menu"></i></a>
+            </div>
+          </div>
+
+          <div data-page="cat" class="navbar-inner cached">
+            <div class="left sliding">
+                <a href="#index" class="back link icon-only"><i class="icon icon-back"></i></a>
+            </div>
+            <div class="center "></div>
+            <div class="right">
+              <a href="#search" class="link icon-only"> <i class="icon icon-search"></i></a>
+              <!-- <a href="#" class="link icon-only share"> <i class="icon icon-share"></i></a> -->
+              <a href="#" class="link icon-only open-panel"> <i class="icon icon-menu"></i></a>
+            </div>
+          </div>
+
+          <div data-page="newsInner" class="navbar-inner cached">
+            <div class="left sliding">
+                <a href="#index" class="back link icon-only"><i class="icon icon-back"></i></a>
+            </div>
+            <div class="center "></div>
+            <div class="right">
+              <a href="#search" class="link icon-only"> <i class="icon icon-search"></i></a>
+              <a href="#" class="link icon-only share"> <i class="icon icon-share"></i></a>
+              <a href="#" class="link icon-only open-panel"> <i class="icon icon-menu"></i></a>
+            </div>
+          </div>
+
+          <div data-page="settings" class="navbar-inner cached">
+            <div class="left">
+                <a href="#index" class="back link icon-only">
+                	<i class="icon icon-back"></i>
+                </a>
+                <span>Tənzimləmələr</span>
+            </div>
+            <div class="center sliding"></div>
+            <div class="right">
+              <a href="#search" class="link icon-only"> <i class="icon icon-search"></i></a>
+              <a href="#" class="link icon-only open-panel"> <i class="icon icon-menu"></i></a>
+            </div>
+          </div>
+
+          <div data-page="search" class="navbar-inner cached">
+            <div class="left">
+                <a href="#index" class="back link icon-only">
+                	<i class="icon icon-back"></i>
+                </a>
+                <span>Axtarış</span>
+            </div>
+            <div class="center sliding"></div>
+            <div class="right">
+              <a href="#search" class="link icon-only"> <i class="icon icon-search"></i></a>
+              <a href="#" class="link icon-only open-panel"> <i class="icon icon-menu"></i></a>
+            </div>
+          </div>
+
+          <div data-page="about" class="navbar-inner cached">
+            <div class="left">
+                <a href="#index" class="back link icon-only">
+                	<i class="icon icon-back"></i>
+                </a>
+                <span>Haqqında</span>
+            </div>
+            <div class="center sliding"></div>
+            <div class="right">
+              <a href="#search" class="link icon-only"> <i class="icon icon-search"></i></a>
+              <a href="#" class="link icon-only open-panel"> <i class="icon icon-menu"></i></a>
+            </div>
+          </div>
+
+        </div>
+
+        <div class="pages navbar-through toolbar-through">
+
+          <div data-page="index" class="page">
+            <div class="page-content infinite-scroll pull-to-refresh-content index" data-distance="1000">
+              <div class="pull-to-refresh-layer">
+                <div class="preloader"></div>
+                <div class="pull-to-refresh-arrow"></div>
+              </div>
+              <div class="content-block">
+              </div>
+              <div class="infinite-scroll-preloader">
+                <div class="preloader"></div>
+              </div>
+            </div>
+          </div>
+
+          <div data-page="cat" class="page cached">
+            <div class="page-content  cat">
+              <div class="content-block">
+              </div>
+            </div>
+          </div>
+
+          <div data-page="newsInner" class="page cached">
+            <div class="page-content infinite-scroll news_inner">
+              <div class="content-block news">
+              </div>
+              <div class="content-block others">
+              </div>
+              <div class="infinite-scroll-preloader">
+                <div class="preloader"></div>
+              </div>
+            </div>
+          </div>
+
+          <div data-page="settings" class="page cached">
+            <div class="page-content settings">
+              <div class="content-block">
+                <div class="list-block inset">
+                  <ul>
+                    <li>
+                      <div class="item-content">
+                        <div class="item-inner">
+                          <div class="item-title">Wi-fi</div>
+                          <div class="item-after">
+                            <label class="label-switch">
+                              <input type="checkbox"/>
+                              <div class="checkbox"></div>
+                            </label>
+                          </div>
+                        </div>
+                      </div>
+                    </li>
+                    <li>
+                      <div class="item-content">
+                        <div class="item-inner">
+                          <div class="item-title">3G</div>
+                          <div class="item-after">
+                            <label class="label-switch">
+                              <input type="checkbox"/>
+                              <div class="checkbox"></div>
+                            </label>
+                          </div>
+                        </div>
+                      </div>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+
+		  <div data-page="search" class="page cached">
+			<form class="searchbar red">
+				<div class="searchbar-input">
+					<input type="search" placeholder="Axtar">
+					<a href="#" class="searchbar-clear"></a>
+				</div>
+			</form>
+			<div class="page-content infinite-scroll doSearch">
+				<div class="content-block searchbar-not-found">
+					Axtarış nəticə vermədi
+				</div>
+				<div class="list-block list-block-search searchbar-found">
+          <div class="content-block">
+          </div>
+				</div>
+        <div class="infinite-scroll-preloader">
+          <div class="preloader"></div>
+        </div>
+			</div>
+		  </div>
+
+		  <div data-page="about" class="page cached">
+			<div class="page-content about">
+				<div class="content-block">
+					<div class="content-block-inner">
+            <div class="content">
+              <!--						<p><img src="../www/img/logo.png" style="width: inherit!important"></p>-->
+
+              						<p>"Qafqazinfo.az" internet qəzeti 2010-cu ilin avqustun 16-da fəaliyyətə başlayıb və müstəqil informasiya siyasəti həyata keçirən media qurumudur.
+              						</p>
+              						<p>
+              							www.qafqazinfo.az saytında Azərbaycanın ictimai, siyasi, sosial və mədəni həyatında olan yeniliklərlə bərabər, digər Qafqaz ölkələrində, habelə dünyada baş verən maraqlı xəbərlər oxuculara çatdırılır. Bundan başqa, internet qəzetdə müxtəlif sahələrdən bəhs edən müsahibələr, təhlillər, reportajlar, müəllif yazıları işıqlandırılır. İnternet qəzet siyasi və sosial qrupların heç birinə qarşı ayrı-seçkilik etmir, tam obyektiv və müstəqil olaraq, şərhsiz xəbər yayır. Bu media layihəsinin işində redaksiyanın yaradıcı kollektivi ilə yanaşı oxucular da aktiv iştirak edə bilərlər. Redaksiyada və qəzetin internet saytında "qaynar-xətt" fəaliyyət göstərir ki, oxucuların qarşılaşdıqları hadisələrlə bağlı redaksiyaya operativ məlumat vermək imkanları var. "Qafqazinfo.az"ın yaradıcı kollektivi Azərbaycanda fəaliyyət göstərən bütün dövlət qurumlarını, siyasi partiyaları, QHT-ləri, hüquq-mühafizə orqanlarını aktiv əməkdaşlığa dəvət edir.
+              						</p>
+              						<p>
+              							"Qafqazinfo.az"ın təsisiçisi və baş direktoru Elbrus Ərud, baş redaktoru Elnur Məmmədli, xəbər müdiri Günel Əbilovadır.
+              						</p>
+              						<p>
+              							<strong>Əlaqə</strong><br>
+              							Ünvan: Yusif Vazir Chamanzaminli,119C.<br>
+              							Telefon: (012) 511-77-89, (012) 564-18-48<br>
+              							Mob: (055) 490 05 96, whatsapp nömrəsi (050) 979-96-10<br>
+              							E-mail: info@qafqazinfo.az<br>
+              						</p>
+              						<p>
+              							ElitSolutions.com - Web & Mobile Development
+              						</p>
+            </div>
+					</div>
+				</div>
+			</div>
+		  </div>
+
+        </div>
+      </div>
+    </div>
+	<script type="text/template7" id="categoryNews">
+		{{#each news}}
+			<a href="#newsInner?id={{id}}" data-newsId="{{id}}" class="card card-header-pic p{{id}}">
+				<div class="card-header color-white no-border">
+					<img src="http://www.qafqazinfo.az/{{news_img}}">
+					<div class="news-time">
+						<time><i class="icon icon-clock"></i> {{news_time}}</time>
+						<span><i class="icon icon-calendar"></i> {{news_day}}</span>
+					</div>
+				</div>
+				<div class="card-content">
+					<div class="card-content-inner">
+						{{strippedTitle}}
+					</div>
+				</div>
+			</a>
+		{{/each}}
+	</script>
+
+   <script type="text/template7" id="categories">
+     <!-- <li>
+     			<a href="#index" class="item-link close-panel">
+     				<div class="item-content">
+     					<div class="item-inner">
+     						<div class="item-title">Əsas səhifə</div>
+     					</div>
+     				</div>
+     			</a>
+     		</li> -->
+   	{{#each categories}}
+		<li>
+			<a href="#cat?id={{id}}" data-catid="{{id}}" class="item-link close-panel">
+				<div class="item-content">
+					<div class="item-inner">
+						<div class="item-title">{{title}}</div>
+					</div>
+				</div>
+			</a>
+		</li>
+	{{/each}}
+   </script>
+
+   <script type="text/template7" id="news">
+	  <div class="content-block-title" data-id="{{id}}" data-catid="{{cat_id}}" data-slug="{{link}}">
+		  {{strippedTitle}}
+	  </div>
+	  <div class="news-time">
+		  <time><i class="icon icon-calendar"></i> {{news_day}} <i class="icon icon-clock"></i> {{news_time}}</time>
+		  <span><i class="icon icon-eye"></i> </span>
+	  </div>
+	  <img src="http://www.qafqazinfo.az/{{news_img}}">
+	  <div class="content">
+      {{content}}
+	  </div>
+    <div class="photosession p{{id}}"></div>
+    Əlaqə üçün Tel: (055) 490 05 96 <br />E-mail: info@qafqazinfo.az
+   </script>
+
+   <script type="text/template7" id="newsphotosession">
+		  {{#each photos}}
+      <img src="{{photo}}">
+      {{/each}}
+   </script>
+
+    <script type="text/javascript" src="cordova.js"></script>
+    <script type="text/javascript" src="js/framework7.min.js"></script>
+    <!-- <script type="text/javascript" src="js/socket.io.min.js"></script> -->
+    <!-- <script type="text/javascript" src="js/dexie.min.js"></script> -->
+    <script type="text/javascript" src="js/my-app.js"></script>
+  </body>
+</html>
