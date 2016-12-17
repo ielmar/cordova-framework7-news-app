@@ -19,6 +19,7 @@ var worker1 = function(){
 
 	// listen to events from app.js
 	addEventListener('message', function(e) {
+
 		// create database for qafqazinfo
 		var db = new Dexie("qafqazinfo");
 		db.version(1).stores({
@@ -91,23 +92,24 @@ var worker1 = function(){
 			if(requestSent)
 			return;
 
-			requestSent = true;
-
 			var oldestNewsId = data.data;
 			if(data.indexOrNews === 'index' || data.catId === undefined)
 			{
-				db.news.where('id').below(parseInt(oldestNewsId)).limit(20).reverse().sortBy('news_date').then(function(news) {
-					news.shift();
+				db.news.where('id').below(parseInt(oldestNewsId)).reverse().limit(10).sortBy('news_date').then(function(news) {
+					// news.shift();
 
 					if(news.length>0)
 					{
 							postMessage({command: 'moreNews', data: JSON.stringify(news)});
 					}
-					else
-					{
-						requestSent = true;
-						socket.emit('moreNews', oldestNewsId);
-					}
+					// else
+					// {
+					// 	requestSent = true;
+					// 	console.log('yoxdur '+oldestNewsId);
+					// 	socket.emit('moreNews', oldestNewsId);
+					// }
+					requestSent = true;
+					socket.emit('moreNews', oldestNewsId);
 				});
 			}
 
@@ -149,8 +151,10 @@ var worker1 = function(){
 				// remove oldestNewsId from the array. Create a new array and copy ids to the new array
 				var newArray = [];
 				news.forEach(function(newsItem){
-					if(newsItem.id !== oldestRelatedNewsId)
+					if(parseInt(newsItem.id) !== parseInt(oldestRelatedNewsId))
+					{
 						newArray.push(newsItem);
+					}
 				});
 
 				if(newArray.length>0)
@@ -256,14 +260,14 @@ var worker1 = function(){
 				}
 				else
 				{
-					db.news.orderBy("news_date").reverse().limit(20).toArray().then(function (news) {
-						if(news.length!==0)
+					db.news.orderBy("news_date").reverse().limit(10).toArray().then(function (news) {
+						if(news.length>9)
 						{
 							postMessage({command: 'lastNews', data: JSON.stringify(news)});
 						}
 						else
 						{
-							db.news.orderBy("news_date").reverse().limit(20).toArray().then(function (news) {
+							db.news.orderBy("news_date").reverse().limit(10).toArray().then(function (news) {
 								if(news.length!==0)
 								{
 									postMessage({command: 'lastNews', data: JSON.stringify(news)});
@@ -278,14 +282,8 @@ var worker1 = function(){
 
 		socket.on('moreLastNews', function(news){
 			console.log(news);
-			// if(requestSent)
-			// {
-				// if(news==='')
-				// {
-				// 	postMessage({command: 'endPullToRefresh'});
-				// }
-				// else
-				// {
+			if(requestSent)
+			{
 					db.news.orderBy("news_date").reverse().limit(20).toArray().then(function (news) {
 						if(news.length!==0)
 						{
@@ -301,15 +299,23 @@ var worker1 = function(){
 							});
 						}
 					});
-				// }
-			// 	requestSent = false;
-			// }
+
+				requestSent = false;
+			}
 		});
 
 		socket.on('searchResult', function(news){
 			if(requestSent)
 			{
-				postMessage({command: 'searchResult', data: JSON.stringify(news)});
+				// get ids from news items and get it from local database
+				var newsArrayIds = [];
+				news.news.forEach(function(newsItem){
+					newsArrayIds.push(newsItem.id);
+				});
+
+				db.news.where("id").anyOf(newsArrayIds).reverse().toArray().then(function (news) {
+					postMessage({command: 'searchResult', data: JSON.stringify(news)});
+				});
 				requestSent = false;
 			}
 		});
@@ -325,18 +331,25 @@ var worker1 = function(){
 				else
 				{
 					var oldestNewsId = JSON.parse(data.data);
-					db.news.where('id').above(parseInt(oldestNewsId)).reverse().sortBy('news_date').then(function(news) {
-						news.shift();
+					console.log(oldestNewsId);
+					db.news.where('id').below(parseInt(oldestNewsId)).limit(10).reverse().sortBy('news_date').then(function(news) {
+						console.log('more news socket response '+oldestNewsId);
+						console.log(news);
+						// news.shift();
 
-						// if(news.length>0)
-						// {
+						if(news.length>9)
+						{
 								postMessage({command: 'moreNews', data: JSON.stringify(news)});
-						// }
+						}
+						else
+						{
+							socket.emit('moreNews', oldestNewsId);
+						}
 					});
-				}
 				requestSent = false;
 			}
-		});
+		}
+});
 
 		socket.on('newsItem', function(newsItem){
 			if(requestSent)
@@ -469,7 +482,6 @@ var worker1 = function(){
 
 		});
 
-
 	}, false);
 
 };
@@ -509,8 +521,8 @@ worker.onmessage = function(event) {
 	{
 		var searchResult = JSON.parse(data.data);
 		var htmlSearch = '';
-		if (searchResult.news.length > 0) {
-			htmlSearch = categoryNewsTemplate(searchResult);
+		if (searchResult.length > 0) {
+			htmlSearch = categoryNewsTemplate({news: searchResult});
 		}
 		$$('.searchbar-found .content-block').append(htmlSearch);
 		myApp.hideIndicator();
@@ -535,11 +547,24 @@ worker.onmessage = function(event) {
 	{
 		var moreNews = JSON.parse(data.data);
 
-		// compile template data
-		htmlPreviousNews = categoryNewsTemplate({news: moreNews});
+		var newNewsArray = [];
+		// check if the items are already on the page
+		moreNews.forEach(function(newsItem){
+			if($$('.content-block a.p'+newsItem.id).length === 0)
+			{
+				newNewsArray.push(newsItem);
+			}
+		});
 
-		// Append new items
-		$$('.index .content-block').append(htmlPreviousNews);
+		// only insert items that are not on the page
+		if(newNewsArray.length>0)
+		{
+			// compile template data
+			htmlPreviousNews = categoryNewsTemplate({news: newNewsArray});
+
+			// Append new items
+			$$('.index .content-block').append(htmlPreviousNews);
+		}
 	}
 
 	if(data.command == 'news')
@@ -841,7 +866,7 @@ $$('.infinite-scroll').on('infinite', function () {
 	}
 
   // Exit, if loading in progress
-  if (myApp.loading) return;
+  if(myApp.loading) return;
 
   // Set loading flag
   myApp.loading = true;
@@ -862,7 +887,6 @@ $$('.infinite-scroll').on('infinite', function () {
 		// the function is called for search page
 		if(indexOrNewsPage === 'search')
 		{
-			console.log('search');
 			var mySearchbar = $$('.searchbar')[0].f7Searchbar;
 			var webworkerArray= [];
 			webworkerArray.command = 'search';
@@ -930,24 +954,9 @@ $$('.panel-left').on('closed', function () {
     clearInterval(myApp.setInterval);
 });
 
+// when categories tab is open, if we click on the category again, this code block runs
 $$(document).on('click', '.categories a.second', function (e) {
 	var catId = $$(this).data('catid');
-
-	console.log(catId);
-
-	// // no data in localStorage. send request
-	// if(catLastNews === null || catLastNews === undefined)
-	// {
-	// 	// show preloader till we will be getting data from the server
-	// 	myApp.showIndicator();
-	// }
-	// else
-	// {
-	// 	// show local data while new data is arrived
-	// 	var htmlCatNews = categoryNewsTemplate(JSON.parse(catLastNews));
-	//
-	// 	$$('.cat .content-block').prepend(htmlCatNews);
-	// }
 
 	// show preloader till we will be getting data from the server
 	myApp.showIndicator();
@@ -955,7 +964,7 @@ $$(document).on('click', '.categories a.second', function (e) {
 	var catData = [];
 	catData.id = catId;
 	catData.lastId = 0;
-	
+
 	// send get request to the server
 	var categoryNewsWebworkerArray = [];
 	categoryNewsWebworkerArray.command = 'getCategoryNews';
