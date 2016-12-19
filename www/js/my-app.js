@@ -17,6 +17,11 @@ var worker1 = function(){
 	// connect to socket
 	var socket = io('http://node.qafqazinfo.az:8080');
 
+	// socket error connection handling
+	socket.on('connect_failed', function() {
+		console.log('socket connection failed');
+	});
+
 	// listen to events from app.js
 	addEventListener('message', function(e) {
 
@@ -145,7 +150,14 @@ var worker1 = function(){
 			var oldestRelatedNewsCatId = data.catId;
 			var relatedNewDataOffset = data.pageNo;
 
-			db.news.where('cat_id').equals(parseInt(oldestRelatedNewsCatId)).offset(relatedNewDataOffset).limit(10).reverse().sortBy('news_date').then(function(news) {
+			db.news
+			.where('cat_id')
+			.equals(parseInt(oldestRelatedNewsCatId))
+			.offset(relatedNewDataOffset)
+			.limit(10)
+			.reverse()
+			.sortBy('news_date')
+			.then(function(news) {
 				news.shift();
 
 				// remove oldestNewsId from the array. Create a new array and copy ids to the new array
@@ -209,7 +221,14 @@ var worker1 = function(){
 		if(data.command == 'getRelatedNewsById')
 		{
 			var relatedNewsData = JSON.parse(data.data);
-			db.news.where('cat_id').equals(parseInt(relatedNewsData.cat_id)).reverse().limit(10).sortBy('news_date').then(function(news) {
+			db.news
+			.where('cat_id')
+			.equals(parseInt(relatedNewsData.cat_id))
+			.and(function(newsItem){return newsItem.id != relatedNewsData.id; })
+			.reverse()
+			.limit(10)
+			.sortBy('news_date')
+			.then(function(news) {
 				news.shift();
 
 				postMessage({command: 'relatedNews', data: JSON.stringify({news: news})});
@@ -260,14 +279,24 @@ var worker1 = function(){
 				}
 				else
 				{
-					db.news.orderBy("news_date").reverse().limit(10).toArray().then(function (news) {
+					db.news
+					.orderBy("news_date")
+					.reverse()
+					.limit(10)
+					.toArray()
+					.then(function (news) {
 						if(news.length>9)
 						{
 							postMessage({command: 'lastNews', data: JSON.stringify(news)});
 						}
 						else
 						{
-							db.news.orderBy("news_date").reverse().limit(10).toArray().then(function (news) {
+							db.news
+							.orderBy("news_date")
+							.reverse()
+							.limit(10)
+							.toArray()
+							.then(function (news) {
 								if(news.length!==0)
 								{
 									postMessage({command: 'lastNews', data: JSON.stringify(news)});
@@ -284,14 +313,24 @@ var worker1 = function(){
 			console.log(news);
 			if(requestSent)
 			{
-					db.news.orderBy("news_date").reverse().limit(20).toArray().then(function (news) {
+					db.news
+					.orderBy("news_date")
+					.reverse()
+					.limit(20)
+					.toArray()
+					.then(function (news) {
 						if(news.length!==0)
 						{
 							postMessage({command: 'lastNews', data: JSON.stringify(news)});
 						}
 						else
 						{
-							db.news.orderBy("news_date").reverse().limit(20).toArray().then(function (news) {
+							db.news
+							.orderBy("news_date")
+							.reverse()
+							.limit(20)
+							.toArray()
+							.then(function (news) {
 								if(news.length!==0)
 								{
 									postMessage({command: 'lastNews', data: JSON.stringify(news)});
@@ -313,7 +352,12 @@ var worker1 = function(){
 					newsArrayIds.push(newsItem.id);
 				});
 
-				db.news.where("id").anyOf(newsArrayIds).reverse().toArray().then(function (news) {
+				db.news
+				.where("id")
+				.anyOf(newsArrayIds)
+				.reverse()
+				.toArray()
+				.then(function (news) {
 					postMessage({command: 'searchResult', data: JSON.stringify(news)});
 				});
 				requestSent = false;
@@ -331,10 +375,13 @@ var worker1 = function(){
 				else
 				{
 					var oldestNewsId = JSON.parse(data.data);
-					console.log(oldestNewsId);
-					db.news.where('id').below(parseInt(oldestNewsId)).limit(10).reverse().sortBy('news_date').then(function(news) {
-						console.log('more news socket response '+oldestNewsId);
-						console.log(news);
+					db.news
+					.where('id')
+					.below(parseInt(oldestNewsId))
+					.limit(10)
+					.reverse()
+					.sortBy('news_date')
+					.then(function(news) {
 						// news.shift();
 
 						if(news.length>9)
@@ -346,17 +393,21 @@ var worker1 = function(){
 							socket.emit('moreNews', oldestNewsId);
 						}
 					});
-				requestSent = false;
+					requestSent = false;
+				}
 			}
-		}
-});
+		});
 
 		socket.on('newsItem', function(newsItem){
 			if(requestSent)
 			{
 				// we have received news object. check if exists in the database,
 				// if not, insert into indexeddb
-				db.news.where('id').equals(newsItem.news_item.id).toArray().then(function (newsData) {
+				db.news
+				.where('id')
+				.equals(newsItem.news_item.id)
+				.toArray()
+				.then(function (newsData) {
 					// news does not exist in the database, add it
 					if(newsData.length===0)
 					{
@@ -409,8 +460,17 @@ var worker1 = function(){
 		socket.on('relatedNews', function(news){
 			if(requestSent)
 			{
-				db.news.where('cat_id').equals(parseInt(news.cat_id)).reverse().limit(10).sortBy('news_date').then(function(news) {
-					news.shift();
+				var existingNewId = news.id;
+
+				db.news
+				.where('cat_id')
+				.equals(parseInt(news.cat_id))
+				.and(function(newsItem){return newsItem.id != news.id; })
+				.reverse()
+				.limit(10)
+				.sortBy('news_date')
+				.then(function(news) {
+					// news.shift();
 
 					postMessage({command: 'relatedNews', data: JSON.stringify({news: news})});
 					requestSent = false;
@@ -424,7 +484,14 @@ var worker1 = function(){
 				var newsPageRelatedNewsCount = news.oldestId;
 				var newsPageCatId = news.catId;
 
-				db.news.where('cat_id').equals(parseInt(newsPageCatId)).offset(newsPageRelatedNewsCount).limit(20).reverse().sortBy('news_date').then(function(news) {
+				db.news
+				.where('cat_id')
+				.equals(parseInt(newsPageCatId))
+				.offset(newsPageRelatedNewsCount)
+				.limit(20)
+				.reverse()
+				.sortBy('news_date')
+				.then(function(news) {
 					news.shift();
 
 					if(news.length>0)
@@ -437,7 +504,6 @@ var worker1 = function(){
 
 						if(newArray.length>0)
 						{
-							console.log(newArray);
 							postMessage({command: 'moreNews', data: JSON.stringify(news)});
 						}
 						// else
@@ -472,7 +538,11 @@ var worker1 = function(){
 				if(photos.photos.length > 0)
 				{
 					// update data and add photos
-					db.news.where('id').equals(JSON.parse(photos.id)).toArray().then(function (newsData) {
+					db.news
+					.where('id')
+					.equals(JSON.parse(photos.id))
+					.toArray()
+					.then(function (newsData) {
 						var updateData = {
 							photos: photos.photos
 						};
@@ -606,7 +676,7 @@ worker.onmessage = function(event) {
 var isUpdate = window.localStorage.getItem('isUpdate');
 
 // on every release increase this number by one
-if(!isUpdate || isUpdate === '2')
+if(!isUpdate || isUpdate === '3')
 {
 	for ( var i = 0, len = window.localStorage.length; i < len; ++i ) {
 			var newsItem = window.localStorage.key( i ) ;
@@ -794,7 +864,7 @@ $$(document).on('pageAfterBack', function (e) {
 document.addEventListener("resume", function(e){
 	// send last news request to worker
 	var webworkerArray= [];
-	webworkerArray.command = 'getCats';
+	webworkerArray.command = 'getLastNews';
 	worker.postMessage(webworkerArray);
 }, false);
 
@@ -971,12 +1041,14 @@ $$(document).on('click', '.categories a.second', function (e) {
 	categoryNewsWebworkerArray.data = catData;
 	worker.postMessage(categoryNewsWebworkerArray);
 
+	// scroll the page to the top
+	$$(".cat").scrollTop(0, 0, function(){});
+
 	// add GA tracking
 	// window.analytics.trackView(newsData.news_item.title);
 });
 
 $$(document).on('click', '.others a', function (e) {
-
 	var newsId = $$(this).data('newsid');
 	var newsCatId = $$('.news .content-block-title').data('catid');
 
@@ -991,6 +1063,9 @@ $$(document).on('click', '.others a', function (e) {
 	newsViewCountWebworkerArray.command = 'getViewCountById';
 	newsViewCountWebworkerArray.data = newsId;
 	worker.postMessage(newsViewCountWebworkerArray);
+
+	// empty other news. it will be filled again.
+	$$('.news_inner .others').html('');
 
 	// get relatedNews
 	var relatedNewstWebworkerArray = [];
@@ -1106,6 +1181,23 @@ document.addEventListener("deviceready", function(e){
 	// add GA id and start it
 	window.analytics.startTrackerWithId('UA-4741780-21');
 
+	// onesignal.com push notification
+	// window.plugins.OneSignal.setLogLevel({logLevel: 4, visualLevel: 4});
 
+	// Set your iOS Settings
+	var iosSettings = {};
+	iosSettings["kOSSettingsKeyAutoPrompt"] = true;
+	iosSettings["kOSSettingsKeyInAppLaunchURL"] = false;
+
+	var notificationOpenedCallback = function(jsonData) {
+    console.log('notificationOpenedCallback: ' + JSON.stringify(jsonData));
+  };
+
+	window.plugins.OneSignal
+    .startInit("fa671fdb-f51d-4d7f-91e1-b3b3f7cf81f8", "891039569422")
+    // .handleNotificationOpened(notificationOpenedCallback)
+		.inFocusDisplaying(window.plugins.OneSignal.OSInFocusDisplayOption.None)
+		.iOSSettings(iosSettings)
+    .endInit();
 
 }, false);
