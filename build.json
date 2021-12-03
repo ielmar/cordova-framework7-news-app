@@ -2,9 +2,9 @@
 	"android": {
 		"release": {
 			"keystore": "Qafqazinfo.keystore",
-			"storePassword": "***REMOVED***",
+			"storePassword": "******",
 			"alias": "qafqazinfo",
-			"password": "***REMOVED***",
+			"password": "******",
 			"keystoreType": ""
 		}
 	},
